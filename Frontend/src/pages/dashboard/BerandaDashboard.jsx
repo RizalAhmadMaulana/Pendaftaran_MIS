@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -32,7 +33,7 @@ export default function BerandaDashboard() {
         return;
       }
       try {
-        const response = await fetch('http://localhost:8000/api/dashboard-data/', {
+        const response = await fetch(`${getBaseApiUrl()}/dashboard-data/`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.ok) {

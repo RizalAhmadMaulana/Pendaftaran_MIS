@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import {
   FaCalendarAlt,
@@ -27,7 +28,7 @@ export default function JadwalSeleksi() {
 
       try {
         // Fetch Jadwal Seleksi
-        const resJadwal = await fetch('http://localhost:8000/api/jadwal/', {
+        const resJadwal = await fetch(`${getBaseApiUrl()}/jadwal/`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (resJadwal.ok) {
@@ -36,7 +37,7 @@ export default function JadwalSeleksi() {
         }
 
         // Fetch Data Siswa Profil
-        const resSiswa = await fetch('http://localhost:8000/api/dashboard-data/', {
+        const resSiswa = await fetch(`${getBaseApiUrl()}/dashboard-data/`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (resSiswa.ok) {

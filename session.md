@@ -1148,3 +1148,65 @@ npm run preview
 
 
 
+
+
+---
+
+### Session 40 - 5 November 2026 (Restrukturisasi Arsitektur .env Terpusat & Sinkronisasi Komunikasi Frontend-Backend Sesuai Standar e-ujian)
+
+**Latar Belakang & Masalah:**
+1. Backend `Pendaftaran_MIS` dijalankan pada port `8001` (`python manage.py runserver 0.0.0.0:8001`) karena port default 8000 mengalami restriksi permission / sedang diduduki proses lain di Windows.
+2. Seluruh pemanggilan API pada 18 file komponen Frontend sebelumnya di-hardcode ke `http://localhost:8000/api/`.
+3. Akibatnya, saat pengguna mengakses portal frontend (baik via `localhost` maupun IP LAN `192.168.1.74:5173`) dan menekan tombol *Masuk ke Portal*, request login terputus (connection refused ke port 8000) sehingga tombol terasa tidak ada reaksi sama sekali.
+
+**Pembaruan & Implementasi Teknis (Mengacu Struktur e-ujian):**
+1. **Konfigurasi Environment Backend (`Pendaftaran_MIS/Backend/`):**
+   - Membuat file `.env` dan template `.env.example`:
+     - `DEBUG=True`
+     - `ALLOWED_HOSTS=*` (atau `localhost,127.0.0.1,0.0.0.0,192.168.1.74`)
+     - `CORS_ORIGIN=http://localhost:5173,http://127.0.0.1:5173,http://192.168.1.74:5173,...`
+     - `CSRF_ORIGIN=http://localhost:5173,http://127.0.0.1:5173,http://192.168.1.74:5173,...`
+   - Memperbarui `core/settings.py` dengan `dotenv.load_dotenv(BASE_DIR / '.env')` untuk memuat variabel konfigurasi, hosts, dan CORS secara dinamis.
+   - Menambahkan dependensi `python-dotenv>=1.0.0` pada `requirements.txt`.
+
+2. **Konfigurasi Environment Frontend (`Pendaftaran_MIS/Frontend/`):**
+   - Membuat file `.env` dan `.env.example`:
+     - `VITE_API_BASE_URL=http://localhost:8001/api`
+   - Membuat modul sentral `src/api/axiosInstance.js` yang menyediakan:
+     - `getBaseApiUrl()`: Mengambil URL API dari `.env` dengan fitur cerdas *smart host replacement* (jika web dibuka via IP LAN seperti `192.168.1.74`, hostname otomatis diselaraskan).
+     - `getBackendOrigin()`: Mengambil root host backend untuk tautan file dokumen/media dan Django Admin (`/admin/`).
+     - `axiosInstance`: Klien Axios terkonfigurasi dengan interceptor JWT token Authorization dan penanganan error 401.
+
+3. **Migrasi Menyeluruh 18 File Frontend (Zero Hardcoded URLs):**
+   - Menghapus 100% string hardcoded `http://localhost:8000` pada seluruh halaman:
+     - `src/pages/landingpage/LoginPeserta.jsx`
+     - `src/pages/landingpage/Home.jsx`
+     - `src/pages/landingpage/DetailUnit.jsx`
+     - `src/pages/landingpage/FormDaftarAwal.jsx`
+     - `src/pages/landingpage/TagihanPembayaran.jsx`
+     - `src/pages/dashboard/AdminPortal.jsx`
+     - `src/pages/dashboard/BerandaDashboard.jsx`
+     - `src/pages/dashboard/BiodataDokumen.jsx`
+     - `src/pages/dashboard/HasilSeleksi.jsx`
+     - `src/pages/dashboard/JadwalSeleksi.jsx`
+     - `src/pages/dashboard/TagihanKeuangan.jsx`
+     - `src/pages/admin/AdminDashboard.jsx`
+     - `src/pages/admin/AdminInputJadwal.jsx`
+     - `src/pages/admin/AdminJadwalManager.jsx`
+     - `src/pages/admin/AdminKeputusanSeleksi.jsx`
+     - `src/pages/admin/AdminMonitoringJadwal.jsx`
+     - `src/pages/admin/AdminPendaftarManager.jsx`
+     - `src/pages/admin/AdminUnitManager.jsx`
+   - Seluruh pemanggilan diganti menggunakan helper sentral `getBaseApiUrl()` dan `getBackendOrigin()`.
+
+4. **Kesiapan Workflow Git & Production (Local vs VPS):**
+   - File `.env` sudah terlindungi di `.gitignore`, sehingga saat push/pull di GitHub, konfigurasi environment server production tidak akan pernah tertimpa.
+   - Saat deploy ke server production VPS, cukup isi `.env` frontend dengan domain resmi (misal `https://ppdb.mentariku.org/api`), dan seluruh aplikasi langsung berfungsi tanpa perlu mengedit satu pun baris kode program.
+
+5. **Verifikasi Build:**
+   - Menjalankan `npm run build` pada frontend: Berhasil 100% tanpa error (`built in 582ms`).
+   - Verifikasi sintaks `settings.py`: Berhasil dan valid (`py_compile`).
+
+- **Tambahan Fix (Zero-Dependency .env Loader):** Menambahkan blok `try-except ImportError` pada `core/settings.py` sehingga pembacaan file `.env` memiliki native fallback otomatis tanpa wajib menginstall package `python-dotenv` di dalam virtualenv.
+
+- **Pembersihan Elemen Dummy Form Login:** Menghapus checkbox *Ingat Saya* dan tombol tautan *Lupa Password?* pada halaman login portal calon siswa (`Frontend/src/pages/landingpage/LoginPeserta.jsx`), serta merapikan spacing tombol *Masuk ke Portal*.

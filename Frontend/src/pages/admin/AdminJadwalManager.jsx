@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import {
   FaCalendarAlt,
@@ -45,7 +46,7 @@ export default function AdminJadwalManager() {
   const fetchJadwalList = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/admin/jadwal/');
+      const res = await fetch(`${getBaseApiUrl()}/admin/jadwal/`);
       if (res.ok) {
         const data = await res.json();
         setJadwalList(data);
@@ -67,7 +68,7 @@ export default function AdminJadwalManager() {
     setViewMode('monitoring');
     setLoadingPeserta(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/jadwal/${jadwal.id}/peserta/`);
+      const res = await fetch(`${getBaseApiUrl()}/admin/jadwal/${jadwal.id}/peserta/`);
       if (res.ok) {
         const data = await res.json();
         setPesertaList(data);
@@ -113,8 +114,8 @@ export default function AdminJadwalManager() {
     setIsSaving(true);
     try {
       const url = editingJadwal
-        ? `http://localhost:8000/api/admin/jadwal/${editingJadwal.id}/`
-        : 'http://localhost:8000/api/admin/jadwal/';
+        ? `${getBaseApiUrl()}/admin/jadwal/${editingJadwal.id}/`
+        : `${getBaseApiUrl()}/admin/jadwal/`;
       const method = editingJadwal ? 'PATCH' : 'POST';
 
       const res = await fetch(url, {
@@ -142,7 +143,7 @@ export default function AdminJadwalManager() {
     if (!window.confirm(`Yakin ingin menghapus jadwal "${nama}"?`)) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/jadwal/${id}/`, {
+      const res = await fetch(`${getBaseApiUrl()}/admin/jadwal/${id}/`, {
         method: 'DELETE',
       });
       if (res.ok || res.status === 204) {
@@ -163,7 +164,7 @@ export default function AdminJadwalManager() {
   // Quick Update Status Seleksi Peserta di Halaman Monitoring
   const handleUpdateStatusPeserta = async (pendaftarId, newStatus) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/pendaftar/${pendaftarId}/`, {
+      const res = await fetch(`${getBaseApiUrl()}/admin/pendaftar/${pendaftarId}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status_seleksi: newStatus }),

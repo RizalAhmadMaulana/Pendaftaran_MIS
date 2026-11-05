@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
@@ -74,7 +75,7 @@ export default function TagihanPembayaran() {
 
     const fetchTagihan = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/payment/tagihan/${candidateId}/`);
+        const res = await fetch(`${getBaseApiUrl()}/payment/tagihan/${candidateId}/`);
         if (res.ok) {
           const data = await res.json();
           setTagihanApi(data);
@@ -113,7 +114,7 @@ export default function TagihanPembayaran() {
     setIsUploadingBukti(true);
     setBuktiSuccessMsg('');
     try {
-      const res = await fetch(`http://localhost:8000/api/payment/upload-bukti/${candidateId}/`, {
+      const res = await fetch(`${getBaseApiUrl()}/payment/upload-bukti/${candidateId}/`, {
         method: 'POST',
         body: formData
       });
@@ -194,7 +195,7 @@ export default function TagihanPembayaran() {
   const handleCekPembayaran = async () => {
     setIsChecking(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/payment/cek-pembayaran/${candidateId}/`, {
+      const res = await fetch(`${getBaseApiUrl()}/payment/cek-pembayaran/${candidateId}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -551,7 +552,7 @@ export default function TagihanPembayaran() {
                     href={
                       tagihanApi.bukti_pembayaran.startsWith('http')
                         ? tagihanApi.bukti_pembayaran
-                        : `http://localhost:8000${tagihanApi.bukti_pembayaran}`
+                        : `${getBackendOrigin()}${tagihanApi.bukti_pembayaran}`
                     }
                     target="_blank"
                     rel="noopener noreferrer"

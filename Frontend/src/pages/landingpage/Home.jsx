@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -243,7 +244,7 @@ export default function Home() {
   const [units, setUnits] = useState(unitList);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/units/')
+    fetch(`${getBaseApiUrl()}/units/`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

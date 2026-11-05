@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
@@ -131,7 +132,7 @@ export default function FormDaftarAwal() {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:8000/api/daftar/', {
+      const response = await fetch(`${getBaseApiUrl()}/daftar/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

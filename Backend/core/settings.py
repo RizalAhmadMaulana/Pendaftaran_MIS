@@ -10,22 +10,39 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env file jika ada (mendukung python-dotenv maupun native fallback tanpa library tambahan)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env')
+except ImportError:
+    env_file = BASE_DIR / '.env'
+    if env_file.exists():
+        with open(env_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    k, v = line.split('=', 1)
+                    os.environ.setdefault(k.strip(), v.strip().strip("'\""))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(#e0x5t_1o=k%wp^up73hz8m-0n!%^kjw2j=br1=%imf#co3_!'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-(#e0x5t_1o=k%wp^up73hz8m-0n!%^kjw2j=br1=%imf#co3_!')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '*')
+if allowed_hosts_env == '*':
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
 
 
 # Application definition
@@ -131,7 +148,18 @@ MAILERS = {
     },
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+cors_origin_env = os.getenv('CORS_ORIGIN', '')
+if cors_origin_env and cors_origin_env != '*':
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in cors_origin_env.split(',') if o.strip()]
+    CORS_ALLOW_ALL_ORIGINS = False
+else:
+    CORS_ALLOW_ALL_ORIGINS = True
+
+csrf_origin_env = os.getenv('CSRF_ORIGIN', '')
+if csrf_origin_env and csrf_origin_env != '*':
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in csrf_origin_env.split(',') if o.strip()]
+
+CORS_ALLOW_CREDENTIALS = True
 APPEND_SLASH = False
 
 from datetime import timedelta

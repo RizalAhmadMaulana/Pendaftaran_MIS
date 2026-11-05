@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -75,7 +76,7 @@ export default function BiodataDokumen() {
       return;
     }
     try {
-      const response = await fetch('http://localhost:8000/api/dashboard-data/', {
+      const response = await fetch(`${getBaseApiUrl()}/dashboard-data/`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.ok) {
@@ -148,7 +149,7 @@ export default function BiodataDokumen() {
 
     setIsSaving(true);
     try {
-      const res = await fetch('http://localhost:8000/api/dashboard-data/', {
+      const res = await fetch(`${getBaseApiUrl()}/dashboard-data/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -211,7 +212,7 @@ export default function BiodataDokumen() {
     setUploadingDoc(docId);
 
     try {
-      const res = await fetch('http://localhost:8000/api/upload-dokumen/', {
+      const res = await fetch(`${getBaseApiUrl()}/upload-dokumen/`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`
@@ -911,7 +912,7 @@ export default function BiodataDokumen() {
                       href={
                         doc.fileUrl.startsWith('http')
                           ? doc.fileUrl
-                          : `http://localhost:8000${doc.fileUrl}`
+                          : `${getBackendOrigin()}${doc.fileUrl}`
                       }
                       target="_blank"
                       rel="noopener noreferrer"

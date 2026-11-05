@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
@@ -46,7 +47,7 @@ export default function AdminKeputusanSeleksi() {
 
   // Load dynamic units from API
   useEffect(() => {
-    axios.get('http://localhost:8000/api/units/')
+    axios.get(`${getBaseApiUrl()}/units/`)
       .then(res => {
         if (Array.isArray(res.data) && res.data.length > 0) {
           const mapped = res.data.map(u => ({
@@ -66,7 +67,7 @@ export default function AdminKeputusanSeleksi() {
   // Fetch count of all candidates across units for unit switcher badges
   const fetchAllCounts = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/api/admin/pendaftar/');
+      const res = await axios.get(`${getBaseApiUrl()}/admin/pendaftar/`);
       const counts = {};
       res.data.forEach(p => {
         const k = p.unit?.toLowerCase();
@@ -81,7 +82,7 @@ export default function AdminKeputusanSeleksi() {
   const fetchPendaftar = async () => {
     setLoading(true);
     try {
-      let url = `http://localhost:8000/api/admin/pendaftar/?unit=${selectedUnit}&`;
+      let url = `${getBaseApiUrl()}/admin/pendaftar/?unit=${selectedUnit}&`;
       if (searchTerm) url += `search=${searchTerm}&`;
       if (filterSeleksi !== 'Semua') url += `seleksi=${filterSeleksi}&`;
       if (filterBayar !== 'Semua') url += `pembayaran=${filterBayar}&`;
@@ -106,7 +107,7 @@ export default function AdminKeputusanSeleksi() {
 
   const handleUpdateKeputusan = async (pendaftar, keputusan) => {
     try {
-      await axios.post(`http://localhost:8000/api/admin/pendaftar/${pendaftar.id}/keputusan/`, {
+      await axios.post(`${getBaseApiUrl()}/admin/pendaftar/${pendaftar.id}/keputusan/`, {
         keputusan: keputusan
       });
 

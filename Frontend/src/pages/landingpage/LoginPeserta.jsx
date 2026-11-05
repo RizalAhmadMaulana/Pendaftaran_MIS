@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -33,7 +34,6 @@ export default function LoginPeserta({ defaultTab: propDefaultTab }) {
   const [loginForm, setLoginForm] = useState({
     identifier: '',
     password: '',
-    rememberMe: false,
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -55,7 +55,7 @@ export default function LoginPeserta({ defaultTab: propDefaultTab }) {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8000/api/login/', {
+      const response = await fetch(`${getBaseApiUrl()}/login/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -290,31 +290,10 @@ export default function LoginPeserta({ defaultTab: propDefaultTab }) {
                     </div>
                   </div>
 
-                  {/* Ingat Saya & Lupa Password */}
-                  <div className="flex items-center justify-between text-xs pt-0.5">
-                    <label className="inline-flex items-center gap-2 text-gray-600 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={loginForm.rememberMe}
-                        onChange={(e) => setLoginForm({ ...loginForm, rememberMe: e.target.checked })}
-                        className="w-3.5 h-3.5 accent-emerald-700 rounded"
-                      />
-                      <span>Ingat Saya</span>
-                    </label>
-
-                    <button
-                      type="button"
-                      onClick={() => alert('Fitur reset password demo: Silakan hubungi admin via WhatsApp untuk pemulihan akun.')}
-                      className="text-emerald-800 hover:text-emerald-950 font-semibold cursor-pointer"
-                    >
-                      Lupa Password?
-                    </button>
-                  </div>
-
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-emerald-600 via-primary to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-emerald-900/15 hover:shadow-lg transition-all cursor-pointer mt-2"
+                    className="w-full bg-gradient-to-r from-emerald-600 via-primary to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-emerald-900/15 hover:shadow-lg transition-all cursor-pointer mt-4"
                   >
                     Masuk ke Portal
                   </button>

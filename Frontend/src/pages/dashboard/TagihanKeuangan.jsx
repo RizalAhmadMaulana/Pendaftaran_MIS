@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -32,7 +33,7 @@ export default function TagihanKeuangan() {
       return;
     }
     try {
-      const res = await fetch('http://localhost:8000/api/dashboard-data/', {
+      const res = await fetch(`${getBaseApiUrl()}/dashboard-data/`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -71,7 +72,7 @@ export default function TagihanKeuangan() {
     setUploadSuccess('');
     try {
       const res = await fetch(
-        `http://localhost:8000/api/payment/upload-bukti/${dataSiswa.no_registrasi}/`,
+        `${getBaseApiUrl()}/payment/upload-bukti/${dataSiswa.no_registrasi}/`,
         {
           method: 'POST',
           body: formData
@@ -249,7 +250,7 @@ export default function TagihanKeuangan() {
             <div className="flex items-center gap-3">
               {buktiUrl ? (
                 <a
-                  href={buktiUrl.startsWith('http') ? buktiUrl : `http://localhost:8000${buktiUrl}`}
+                  href={buktiUrl.startsWith('http') ? buktiUrl : `${getBackendOrigin()}${buktiUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 text-emerald-900 text-xs font-black rounded-lg border border-emerald-300 shadow-xs transition-colors"

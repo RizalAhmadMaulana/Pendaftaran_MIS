@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BiSave, BiTrash, BiInfoCircle } from 'react-icons/bi';
@@ -16,7 +17,7 @@ export default function AdminInputJadwal() {
   const [unitOptions, setUnitOptions] = useState(DEFAULT_UNIT_OPTIONS);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/units/')
+    axios.get(`${getBaseApiUrl()}/units/`)
       .then(res => {
         if (Array.isArray(res.data) && res.data.length > 0) {
           const mapped = res.data.map(u => ({
@@ -69,7 +70,7 @@ export default function AdminInputJadwal() {
 
     setLoading(true);
     try {
-      await axios.post('http://localhost:8000/api/admin/jadwal/', form);
+      await axios.post(`${getBaseApiUrl()}/admin/jadwal/`, form);
       const msg = withWa
         ? `Jadwal seleksi ${form.unit.toUpperCase()} tersimpan & draf WhatsApp siap!`
         : `Jadwal seleksi unit ${form.unit.toUpperCase()} berhasil disimpan!`;

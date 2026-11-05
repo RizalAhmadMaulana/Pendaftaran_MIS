@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -81,7 +82,7 @@ export default function AdminUnitManager() {
   // Fetch list of all units
   const fetchUnitsList = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/units/');
+      const res = await fetch(`${getBaseApiUrl()}/units/`);
       if (res.ok) {
         const data = await res.json();
         setUnits(data);
@@ -98,7 +99,7 @@ export default function AdminUnitManager() {
     if (!kode) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/units/${kode}/`);
+      const res = await fetch(`${getBaseApiUrl()}/units/${kode}/`);
       if (res.ok) {
         const data = await res.json();
         setUnitData(data);
@@ -169,7 +170,7 @@ export default function AdminUnitManager() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/units/${activeKode}/`, {
+      const res = await fetch(`${getBaseApiUrl()}/units/${activeKode}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -210,7 +211,7 @@ export default function AdminUnitManager() {
         urutan: units.length + 1
       };
 
-      const res = await fetch('http://localhost:8000/api/units/', {
+      const res = await fetch(`${getBaseApiUrl()}/units/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -252,7 +253,7 @@ export default function AdminUnitManager() {
     if (!window.confirm(confirmMsg)) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/api/units/${unitData.kode}/`, {
+      const res = await fetch(`${getBaseApiUrl()}/units/${unitData.kode}/`, {
         method: 'DELETE'
       });
 
@@ -309,8 +310,8 @@ export default function AdminUnitManager() {
 
     try {
       const url = editingWave
-        ? `http://localhost:8000/api/gelombang/${editingWave.id}/`
-        : 'http://localhost:8000/api/gelombang/';
+        ? `${getBaseApiUrl()}/gelombang/${editingWave.id}/`
+        : `${getBaseApiUrl()}/gelombang/`;
       const method = editingWave ? 'PATCH' : 'POST';
 
       const payload = {
@@ -346,7 +347,7 @@ export default function AdminUnitManager() {
     if (!window.confirm(`Yakin ingin menghapus ${nama}?`)) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/api/gelombang/${id}/`, {
+      const res = await fetch(`${getBaseApiUrl()}/gelombang/${id}/`, {
         method: 'DELETE',
       });
       if (res.ok || res.status === 204) {

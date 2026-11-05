@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -12,7 +13,7 @@ export default function AdminPortal() {
   const adminName = localStorage.getItem('user_name') || 'Administrator PPDB';
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/units/')
+    fetch(`${getBaseApiUrl()}/units/`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setUnits(data);
@@ -77,7 +78,7 @@ export default function AdminPortal() {
 
           <div className="shrink-0">
             <a
-              href="http://localhost:8000/admin/"
+              href={`${getBackendOrigin()}/admin/`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-secondary hover:bg-green-400 text-primary font-extrabold px-6 py-3.5 rounded-2xl shadow-lg transition-all text-sm"

@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FaWhatsapp, FaCheckCircle, FaMapMarkerAlt, FaArrowRight, FaCalendarAlt, FaMoneyBillWave, FaArrowLeft, FaBan } from 'react-icons/fa';
@@ -65,7 +66,7 @@ export default function DetailUnit() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/units/${unitKey}/`)
+    fetch(`${getBaseApiUrl()}/units/${unitKey}/`)
       .then(res => res.json())
       .then(data => {
         if (data && data.kode) {

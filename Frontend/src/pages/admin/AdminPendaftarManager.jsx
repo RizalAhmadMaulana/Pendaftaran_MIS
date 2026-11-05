@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import {
   FaUsers,
@@ -33,7 +34,7 @@ export default function AdminPendaftarManager() {
   const [unitFilterOptions, setUnitFilterOptions] = useState(['TPA', 'KB', 'TK', 'SD', 'SMP', 'SMA']);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/units/')
+    fetch(`${getBaseApiUrl()}/units/`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
@@ -73,7 +74,7 @@ export default function AdminPendaftarManager() {
       if (filterPembayaran !== 'Semua') params.append('pembayaran', filterPembayaran);
       if (filterSeleksi !== 'Semua') params.append('seleksi', filterSeleksi);
 
-      const res = await fetch(`http://localhost:8000/api/admin/pendaftar/?${params.toString()}`);
+      const res = await fetch(`${getBaseApiUrl()}/admin/pendaftar/?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setPendaftarList(data);
@@ -98,7 +99,7 @@ export default function AdminPendaftarManager() {
     if (!selectedPendaftar) return;
     setIsUpdating(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/pendaftar/${selectedPendaftar.id}/`, {
+      const res = await fetch(`${getBaseApiUrl()}/admin/pendaftar/${selectedPendaftar.id}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(fields),
@@ -130,7 +131,7 @@ export default function AdminPendaftarManager() {
     }
 
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/pendaftar/${id}/`, {
+      const res = await fetch(`${getBaseApiUrl()}/admin/pendaftar/${id}/`, {
         method: 'DELETE',
       });
       if (res.ok || res.status === 204) {
@@ -673,7 +674,7 @@ export default function AdminPendaftarManager() {
                         </div>
                         {selectedPendaftar.file_kk ? (
                           <a
-                            href={`http://localhost:8000${selectedPendaftar.file_kk}`}
+                            href={`${getBackendOrigin()}${selectedPendaftar.file_kk}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:text-emerald-700 font-bold flex items-center gap-1"
@@ -695,7 +696,7 @@ export default function AdminPendaftarManager() {
                         </div>
                         {selectedPendaftar.file_akta ? (
                           <a
-                            href={`http://localhost:8000${selectedPendaftar.file_akta}`}
+                            href={`${getBackendOrigin()}${selectedPendaftar.file_akta}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:text-emerald-700 font-bold flex items-center gap-1"
@@ -717,7 +718,7 @@ export default function AdminPendaftarManager() {
                         </div>
                         {selectedPendaftar.file_foto ? (
                           <a
-                            href={`http://localhost:8000${selectedPendaftar.file_foto}`}
+                            href={`${getBackendOrigin()}${selectedPendaftar.file_foto}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:text-emerald-700 font-bold flex items-center gap-1"
@@ -739,7 +740,7 @@ export default function AdminPendaftarManager() {
                         </div>
                         {selectedPendaftar.file_ijazah ? (
                           <a
-                            href={`http://localhost:8000${selectedPendaftar.file_ijazah}`}
+                            href={`${getBackendOrigin()}${selectedPendaftar.file_ijazah}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:text-emerald-700 font-bold flex items-center gap-1"

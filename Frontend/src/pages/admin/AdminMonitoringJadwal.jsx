@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
@@ -114,7 +115,7 @@ export default function AdminMonitoringJadwal() {
   };
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/units/')
+    axios.get(`${getBaseApiUrl()}/units/`)
       .then(res => {
         if (Array.isArray(res.data) && res.data.length > 0) {
           const mapped = [
@@ -133,7 +134,7 @@ export default function AdminMonitoringJadwal() {
   const fetchJadwal = async () => {
     setLoading(true);
     try {
-      let url = 'http://localhost:8000/api/admin/jadwal/?';
+      let url = `${getBaseApiUrl()}/admin/jadwal/?`;
       if (selectedUnit && selectedUnit !== 'semua') {
         url += `unit=${selectedUnit}&`;
       }
@@ -190,7 +191,7 @@ export default function AdminMonitoringJadwal() {
     setActiveModal('peserta');
     setPesertaLoading(true);
     try {
-      const res = await axios.get(`http://localhost:8000/api/admin/jadwal/${jadwal.id}/peserta/`);
+      const res = await axios.get(`${getBaseApiUrl()}/admin/jadwal/${jadwal.id}/peserta/`);
       setPesertaList(res.data);
     } catch (err) {
       console.error('Gagal memuat peserta jadwal:', err);
@@ -202,7 +203,7 @@ export default function AdminMonitoringJadwal() {
   // Save Edit (Simpan Saja vs Simpan & Kirim WA)
   const handleSaveEdit = async (withWa = false) => {
     try {
-      await axios.patch(`http://localhost:8000/api/admin/jadwal/${selectedJadwal.id}/`, editForm);
+      await axios.patch(`${getBaseApiUrl()}/admin/jadwal/${selectedJadwal.id}/`, editForm);
       const msg = withWa
         ? 'Jadwal berhasil diperbarui & notifikasi WhatsApp disiapkan!'
         : 'Jadwal seleksi berhasil diperbarui!';
@@ -218,7 +219,7 @@ export default function AdminMonitoringJadwal() {
   // Confirm Delete
   const handleConfirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8000/api/admin/jadwal/${selectedJadwal.id}/`);
+      await axios.delete(`${getBaseApiUrl()}/admin/jadwal/${selectedJadwal.id}/`);
       triggerNotification('Jadwal seleksi berhasil dihapus!');
       setActiveModal(null);
       fetchJadwal();

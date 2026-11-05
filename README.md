@@ -228,3 +228,4 @@ Pendaftaran_MIS/
   <b>Mentari Islamic School (MIS)</b><br>
   <i>Membangun Generasi Beradab, Berilmu, dan Berprestasi</i>
 </p>
+

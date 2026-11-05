@@ -1,3 +1,4 @@
+import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -22,7 +23,7 @@ export default function AdminDashboard() {
   const fetchStats = async () => {
     setIsRefreshing(true);
     try {
-      const res = await fetch('http://localhost:8000/api/admin/stats/');
+      const res = await fetch(`${getBaseApiUrl()}/admin/stats/`);
       if (res.ok) {
         const data = await res.json();
         setStats(data);
