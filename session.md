@@ -1283,4 +1283,31 @@ npm run preview
 5. **Frontend Admin: Verifikasi Data Pendaftar (`AdminPendaftarManager.jsx`):**
    - Menambahkan kartu pratinjau **Rapor Terakhir** pada Tab 3 (Berkas & Kelulusan) modal detail pendaftar, sejajar dengan KK, Akta, Pas Foto, dan Ijazah.
 
+---
+
+### Session 43 - 6 November 2026 (Redesain Tata Letak Simetris 2x2 Grid Menu Kelola Unit & Gelombang Admin)
+
+**Latar Belakang & Masalah:**
+1. Pada sesi sebelumnya (Session 42), penambahan Bagian C (Pengaturan Berkas Form Pendaftaran Digital) ditempatkan menumpuk di bawah Bagian A dan Bagian B pada kolom kiri (`col-span-7`), sedangkan kolom kanan (`col-span-5`) hanya berisi Bagian D (Gelombang Pendaftaran).
+2. Hal ini menyebabkan ketimpangan tata letak (*layout imbalance*) pada resolusi desktop: area sebelah kanan di bawah kartu Gelombang Pendaftaran menjadi kosong melompong (*empty white space*).
+3. Pengguna meminta agar tata letak Bagian B dan C dibuat berdampingan secara horizontal (kanan-kiri) dan seluruh Bagian A hingga D dirancang sejajar, proporsional, serta memudahkan alur kerja admin (*flow administrative*).
+
+**Pembaruan yang Dilakukan (`Frontend/src/pages/admin/AdminUnitManager.jsx`):**
+1. **Penerapan Grid 2x2 Simetris (`grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch`):**
+   - **Baris 1 (Bagian A & Bagian D):**
+     - **Kiri:** *Bagian A: Identitas & Profil Lembaga* (Form nama unit, label jenjang, lokasi kampus, deskripsi singkat, dan profil lengkap).
+     - **Kanan:** *Bagian D: Gelombang Pendaftaran & Biaya* (Daftar kartu gelombang aktif/nonaktif, periode pendaftaran, biaya registrasi, tombol edit, hapus, dan tombol `+ Buat Gelombang`).
+     - Kedua kartu memiliki proporsi tinggi seimbang (~480px) dan mengisi seluruh lebar desktop.
+   - **Baris 2 (Bagian B & Bagian C):**
+     - **Kiri:** *Bagian B: Informasi Syarat Pendaftaran (Teks Landing Page)* dengan border aksen biru-laut (`#5294A9`), daftar poin persyaratan teks dengan batas scroll internal `max-h-[380px]`, dan tombol `+ Tambah Syarat`.
+     - **Kanan:** *Bagian C: Berkas Form Pendaftaran (Upload Digital)* dengan tombol pintas *⚡ Preset PAUD/SD* & *⚡ Preset SMP/SMA*, saklar toggle aktif/nonaktif 5 berkas inti, dan pill penentu *★ Wajib Diisi* vs *○ Opsional*.
+     - Kedua kartu berdampingan secara horizontal (kanan-kiri) dengan ketinggian sejajar (`items-stretch`) dan menghilangkan 100% ruang kosong di sisi kanan layar.
+   - **Baris 3 (Tombol Simpan Utama):**
+     - Tombol simpan sentral berukuran penuh (*full-width CTA button*): `Simpan Seluruh Pengaturan Unit (Profil, Syarat Landing Page & Berkas Upload)`.
+2. **Isolasi Aksi Form:**
+   - Memastikan tombol aksi internal pada Bagian D (`handleOpenAddWave`, `handleOpenEditWave`, `handleDeleteWave`), Bagian B (`handleAddSyarat`, `handleRemoveSyarat`), dan Bagian C (Preset, toggle) bertipe `type="button"`, sehingga hanya tombol simpan utama di baris 3 yang memicu submit form.
+3. **Penyusunan Panduan Push GitHub & Deploy VPS:**
+   - Menyediakan script PowerShell untuk push lokal ke GitHub dan perintah `git pull` + `npm run build` di server VPS production (`pendaftaran.mentariku.org`).
+
+
 
