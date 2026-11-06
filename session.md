@@ -1210,3 +1210,26 @@ npm run preview
 - **Tambahan Fix (Zero-Dependency .env Loader):** Menambahkan blok `try-except ImportError` pada `core/settings.py` sehingga pembacaan file `.env` memiliki native fallback otomatis tanpa wajib menginstall package `python-dotenv` di dalam virtualenv.
 
 - **Pembersihan Elemen Dummy Form Login:** Menghapus checkbox *Ingat Saya* dan tombol tautan *Lupa Password?* pada halaman login portal calon siswa (`Frontend/src/pages/landingpage/LoginPeserta.jsx`), serta merapikan spacing tombol *Masuk ke Portal*.
+
+---
+
+### Session 41 - 6 November 2026 (Pembaruan Favicon & Logo Tab Browser Web Pendaftaran MIS)
+
+**Latar Belakang & Masalah:**
+1. Tab browser pada halaman web Pendaftaran MIS (`http://192.168.1.74:5173/`) masih menampilkan icon bawaan Vite (ikon petir ungu `#863bff`), belum menggunakan identitas resmi sekolah.
+2. File konfigurasi `index.html` sebelumnya mengarah ke `/logo-pkbm.png`, namun file tersebut berada di direktori aset `src/assets/logo-pkbm.png` dan belum disinkronkan ke root `public/`, sehingga browser gagal memuat favicon dan melakukan fallback ke icon Vite default yang tersimpan di `public/favicon.svg`.
+
+**Perubahan yang Dilakukan:**
+1. **Pembaruan `Frontend/index.html`:**
+   - Menghubungkan favicon langsung ke file aset Vite:
+     ```html
+     <link rel="icon" href="/src/assets/logo-pkbm.png?v=2" />
+     <link rel="alternate icon" href="/logo-pkbm.png?v=2" />
+     <link rel="apple-touch-icon" href="/src/assets/logo-pkbm.png?v=2" />
+     ```
+   - Menambahkan cache-buster `?v=2` agar browser langsung memperbarui favicon tanpa tertahan cache lama.
+2. **Pembaruan `Frontend/public/favicon.svg`:**
+   - Mengganti file bawaan Vite dengan SVG identitas Mentari Islamic School bernuansa hijau emerald (`#1B4332`), aksen hijau cerah (`#2ECC71`), dan emas (`#F1C40F`) sebagai proteksi fallback icon browser modern.
+3. **Penyediaan Panduan Sinkronisasi Terminal:**
+   - Memberikan perintah copy file ke user untuk menyalin `logo-pkbm.png` ke folder `public/` agar kedua skenario URL (bundler Vite maupun static root direct link) terlayani optimal.
+
