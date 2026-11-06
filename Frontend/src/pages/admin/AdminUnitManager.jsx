@@ -548,17 +548,19 @@ export default function AdminUnitManager() {
           </div>
 
           {/* ==============================================================
-              STRUKTUR 4 BAGIAN SEJAJAR (2x2 GRID):
-              BARIS 1: BAGIAN A (IDENTITAS) & BAGIAN D (GELOMBANG)
-              BARIS 2: BAGIAN B (SYARAT TEKS) & BAGIAN C (BERKAS UPLOAD)
-              BARIS 3: TOMBOL SIMPAN UTAMA
+              STRUKTUR 4 BAGIAN SEJAJAR (2 KOLOM SIMETRIS):
+              KOLOM KIRI:  BAGIAN A (IDENTITAS) & BAGIAN B (SYARAT TEKS)
+              KOLOM KANAN: BAGIAN C (BERKAS UPLOAD - ATAS) & BAGIAN D (GELOMBANG - BAWAH)
+              BAGIAN BAWAH: TOMBOL SIMPAN UTAMA
               ============================================================== */}
           <form onSubmit={handleSaveUnit} className="space-y-6">
-            {/* BARIS 1: BAGIAN A (KIRI) & BAGIAN D (KANAN) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              {/* CARD BAGIAN A: PROFIL & IDENTITAS LEMBAGA */}
-              <div className="bg-white rounded-[10px] border-t-[5px] border-[#2ECC71] shadow-[0_4px_15px_rgba(0,0,0,0.05)] p-5 sm:p-6 space-y-4 flex flex-col justify-between">
-                <div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              {/* ==========================================================
+                  KOLOM KIRI: BAGIAN A & BAGIAN B
+                  ========================================================== */}
+              <div className="space-y-6">
+                {/* CARD BAGIAN A: PROFIL & IDENTITAS LEMBAGA */}
+                <div className="bg-white rounded-[10px] border-t-[5px] border-[#2ECC71] shadow-[0_4px_15px_rgba(0,0,0,0.05)] p-5 sm:p-6 space-y-4">
                   <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <div>
                       <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
@@ -668,111 +670,13 @@ export default function AdminUnitManager() {
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* CARD BAGIAN D: GELOMBANG PENDAFTARAN & BIAYA */}
-              <div className="bg-white rounded-[10px] border-t-[5px] border-[#2ECC71] shadow-[0_4px_15px_rgba(0,0,0,0.05)] p-5 sm:p-6 space-y-4 flex flex-col justify-between">
-                <div>
+                {/* CARD BAGIAN B: INFORMASI SYARAT PENDAFTARAN TEKS UNTUK LANDING PAGE */}
+                <div className="bg-white rounded-[10px] border-t-[5px] border-[#2ECC71] shadow-[0_4px_15px_rgba(0,0,0,0.05)] p-5 sm:p-6 space-y-4">
                   <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <div>
                       <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
-                        <FaCalendarAlt className="text-[#2ECC71] text-base" />
-                        <span>Bagian D: Gelombang Pendaftaran</span>
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        Periode dan biaya registrasi masuk santri
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleOpenAddWave}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-primary hover:bg-emerald-900 px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer"
-                    >
-                      <FaPlus className="text-[10px]" /> Buat Gelombang
-                    </button>
-                  </div>
-
-                  <div className="mt-4">
-                    {unitData?.gelombang_list?.length === 0 ? (
-                      <div className="p-8 text-center text-xs text-gray-400 bg-slate-50 rounded-xl border border-dashed border-gray-300">
-                        Belum ada gelombang pendaftaran yang dibuat untuk unit ini.
-                      </div>
-                    ) : (
-                      <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
-                        {unitData?.gelombang_list?.map((wave) => (
-                          <div
-                            key={wave.id}
-                            className="bg-slate-50 hover:bg-emerald-50/50 border border-gray-200 rounded-xl p-4 transition-colors relative group space-y-2.5 shadow-xs"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-bold text-sm text-gray-900">
-                                    {wave.nama_gelombang}
-                                  </h4>
-                                  <span
-                                    className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                                      wave.status_waktu === 'AKTIF'
-                                        ? 'bg-emerald-200 text-emerald-900'
-                                        : wave.status_waktu === 'AKAN_DATANG'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : 'bg-gray-200 text-gray-700'
-                                    }`}
-                                  >
-                                    {wave.status_waktu}
-                                  </span>
-                                </div>
-                                <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                                  <FaCalendarAlt className="text-gray-400 text-[10px]" />
-                                  {wave.tanggal_mulai} s/d {wave.tanggal_selesai}
-                                </p>
-                              </div>
-
-                              {/* Action buttons */}
-                              <div className="flex items-center gap-1">
-                                <button
-                                  type="button"
-                                  onClick={() => handleOpenEditWave(wave)}
-                                  className="p-1.5 text-gray-400 hover:text-emerald-700 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer"
-                                  title="Edit Gelombang"
-                                >
-                                  <FaEdit className="text-xs" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteWave(wave.id, wave.nama_gelombang)}
-                                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                                  title="Hapus Gelombang"
-                                >
-                                  <FaTrash className="text-xs" />
-                                </button>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center justify-between text-xs pt-2 border-t border-gray-200/80">
-                              <span className="text-gray-500 font-medium">Biaya Registrasi:</span>
-                              <span className="font-mono font-extrabold text-emerald-800 text-sm">
-                                Rp {wave.biaya_pendaftaran?.toLocaleString('id-ID')}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* BARIS 2: BAGIAN B (KIRI) & BAGIAN C (KANAN) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              {/* CARD BAGIAN B: INFORMASI SYARAT PENDAFTARAN TEKS UNTUK LANDING PAGE */}
-              <div className="bg-white rounded-[10px] border-t-[5px] border-[#5294A9] shadow-[0_4px_15px_rgba(0,0,0,0.05)] p-5 sm:p-6 space-y-4 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <div>
-                      <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
-                        <FaLayerGroup className="text-[#5294A9] text-base" />
+                        <FaLayerGroup className="text-[#2ECC71] text-base" />
                         <span>Bagian B: Informasi Syarat Pendaftaran ({formData.syarat_pendaftaran.length} Butir)</span>
                       </h3>
                       <p className="text-xs text-gray-500 mt-0.5">
@@ -782,7 +686,7 @@ export default function AdminUnitManager() {
                     <button
                       type="button"
                       onClick={handleAddSyarat}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#5294A9] hover:bg-[#437d90] px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-primary hover:bg-emerald-900 px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer"
                     >
                       <FaPlus className="text-[10px]" /> Tambah Syarat
                     </button>
@@ -791,7 +695,7 @@ export default function AdminUnitManager() {
                   <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar mt-4">
                     {formData.syarat_pendaftaran.map((syarat, index) => (
                       <div key={index} className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-lg bg-slate-100 border border-gray-300 text-xs font-bold text-gray-700 flex items-center justify-center shrink-0">
+                        <span className="w-6 h-6 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center justify-center shrink-0">
                           {index + 1}
                         </span>
                         <input
@@ -799,7 +703,7 @@ export default function AdminUnitManager() {
                           value={syarat}
                           onChange={(e) => handleSyaratChange(index, e.target.value)}
                           placeholder={`Masukkan butir syarat pendaftaran ${index + 1}`}
-                          className="flex-1 text-sm bg-slate-50 border border-gray-300 rounded-xl px-3.5 py-2 focus:border-[#5294A9] focus:bg-white outline-none transition-all shadow-xs"
+                          className="flex-1 text-sm bg-slate-50 border border-gray-300 rounded-xl px-3.5 py-2 focus:border-[#2ECC71] focus:bg-white outline-none transition-all shadow-xs"
                         />
                         <button
                           type="button"
@@ -815,9 +719,14 @@ export default function AdminUnitManager() {
                 </div>
               </div>
 
-              {/* CARD BAGIAN C: PENGATURAN BERKAS FORM PENDAFTARAN (UPLOAD DIGITAL CALON SANTRI) */}
-              <div className="bg-white rounded-[10px] border-t-[5px] border-[#2ECC71] shadow-[0_4px_15px_rgba(0,0,0,0.05)] p-5 sm:p-6 space-y-4 flex flex-col justify-between">
-                <div>
+              {/* ==========================================================
+                  KOLOM KANAN:
+                  1. BAGIAN C: BERKAS FORM PENDAFTARAN (UPLOAD DIGITAL) -> KANAN ATAS
+                  2. BAGIAN D: GELOMBANG PENDAFTARAN & BIAYA -> DI BAWAH BAGIAN C
+                  ========================================================== */}
+              <div className="space-y-6">
+                {/* CARD BAGIAN C: PENGATURAN BERKAS FORM PENDAFTARAN (UPLOAD DIGITAL CALON SANTRI) */}
+                <div className="bg-white rounded-[10px] border-t-[5px] border-[#2ECC71] shadow-[0_4px_15px_rgba(0,0,0,0.05)] p-5 sm:p-6 space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 pb-3 gap-2">
                     <div>
                       <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
@@ -914,10 +823,101 @@ export default function AdminUnitManager() {
                     })}
                   </div>
                 </div>
+
+                {/* CARD BAGIAN D: GELOMBANG PENDAFTARAN & BIAYA (BERADA DI BAWAH BAGIAN C) */}
+                <div className="bg-white rounded-[10px] border-t-[5px] border-[#2ECC71] shadow-[0_4px_15px_rgba(0,0,0,0.05)] p-5 sm:p-6 space-y-4">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div>
+                      <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
+                        <FaCalendarAlt className="text-[#2ECC71] text-base" />
+                        <span>Bagian D: Gelombang Pendaftaran</span>
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Periode dan biaya registrasi masuk santri
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleOpenAddWave}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-primary hover:bg-emerald-900 px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer"
+                    >
+                      <FaPlus className="text-[10px]" /> Buat Gelombang
+                    </button>
+                  </div>
+
+                  <div className="mt-4">
+                    {unitData?.gelombang_list?.length === 0 ? (
+                      <div className="p-8 text-center text-xs text-gray-400 bg-slate-50 rounded-xl border border-dashed border-gray-300">
+                        Belum ada gelombang pendaftaran yang dibuat untuk unit ini.
+                      </div>
+                    ) : (
+                      <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+                        {unitData?.gelombang_list?.map((wave) => (
+                          <div
+                            key={wave.id}
+                            className="bg-slate-50 hover:bg-emerald-50/50 border border-gray-200 rounded-xl p-4 transition-colors relative group space-y-2.5 shadow-xs"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-bold text-sm text-gray-900">
+                                    {wave.nama_gelombang}
+                                  </h4>
+                                  <span
+                                    className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                                      wave.status_waktu === 'AKTIF'
+                                        ? 'bg-emerald-200 text-emerald-900'
+                                        : wave.status_waktu === 'AKAN_DATANG'
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : 'bg-gray-200 text-gray-700'
+                                    }`}
+                                  >
+                                    {wave.status_waktu}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                                  <FaCalendarAlt className="text-gray-400 text-[10px]" />
+                                  {wave.tanggal_mulai} s/d {wave.tanggal_selesai}
+                                </p>
+                              </div>
+
+                              {/* Action buttons */}
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenEditWave(wave)}
+                                  className="p-1.5 text-gray-400 hover:text-emerald-700 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer"
+                                  title="Edit Gelombang"
+                                >
+                                  <FaEdit className="text-xs" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteWave(wave.id, wave.nama_gelombang)}
+                                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                  title="Hapus Gelombang"
+                                >
+                                  <FaTrash className="text-xs" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between text-xs pt-2 border-t border-gray-200/80">
+                              <span className="text-gray-500 font-medium">Biaya Registrasi:</span>
+                              <span className="font-mono font-extrabold text-emerald-800 text-sm">
+                                Rp {wave.biaya_pendaftaran?.toLocaleString('id-ID')}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* BARIS 3: ACTION BUTTON SIMPAN UTAMA */}
+            {/* ACTION BUTTON SIMPAN UTAMA */}
             <div className="pt-2">
               <button
                 type="submit"

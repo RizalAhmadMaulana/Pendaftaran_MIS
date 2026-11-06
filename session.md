@@ -1,6 +1,6 @@
 # 📋 SESSION.md — Catatan Pengembangan Project Pendaftaran_MIS
 
-> **Terakhir diupdate:** 12 Oktober 2026  
+> **Terakhir diupdate:** 6 November 2026  
 > **Nama Project:** Portal Penerimaan Siswa Baru (PSHB) — Mentari Islamic School  
 > **Lokasi Project:** `C:\xampp\htdocs\BACKUP PROJECT RISALAH MUTABAAH MIS\Pendaftaran_MIS\`
 
@@ -1308,6 +1308,37 @@ npm run preview
    - Memastikan tombol aksi internal pada Bagian D (`handleOpenAddWave`, `handleOpenEditWave`, `handleDeleteWave`), Bagian B (`handleAddSyarat`, `handleRemoveSyarat`), dan Bagian C (Preset, toggle) bertipe `type="button"`, sehingga hanya tombol simpan utama di baris 3 yang memicu submit form.
 3. **Penyusunan Panduan Push GitHub & Deploy VPS:**
    - Menyediakan script PowerShell untuk push lokal ke GitHub dan perintah `git pull` + `npm run build` di server VPS production (`pendaftaran.mentariku.org`).
+
+---
+
+### Session 44 - 6 November 2026 (Redesain Total Tata Letak Kelola Unit: Kolom Kiri A-B & Kolom Kanan C-D serta Penyeragaman Warna Bagian B & D)
+
+**Latar Belakang & Kebutuhan:**
+1. Pengguna meminta penataan ulang tata letak menu Kelola Unit & Gelombang dengan spesifikasi urutan posisi yang tegas:
+   - **Bagian C (Berkas Form Pendaftaran Digital):** Ditempatkan di **Kanan Atas**.
+   - **Bagian D (Gelombang Pendaftaran & Biaya):** Ditempatkan tepat **di bawah Bagian C** (Kanan Bawah).
+   - **Bagian A (Identitas & Profil Lembaga):** Ditempatkan di **Kiri Atas**.
+   - **Bagian B (Informasi Syarat Pendaftaran Teks):** Ditempatkan di **Kiri Bawah** (di bawah Bagian A).
+2. Penyeragaman visual: Warna pada **Bagian B** (border card, ikon, tombol aksi, badge, input focus) diseragamkan dengan **Bagian D** menggunakan palet hijau emerald resmi (`#2ECC71` dan `bg-primary`), menggantikan aksen biru-laut (`#5294A9`) sebelumnya.
+
+**Pembaruan yang Dilakukan (`Frontend/src/pages/admin/AdminUnitManager.jsx`):**
+1. **Arsitektur Grid 2 Kolom Sejajar (`grid grid-cols-1 lg:grid-cols-2 gap-6 items-start`):**
+   - **Kolom Kiri:**
+     - **Atas:** *Bagian A: Identitas & Profil Lembaga* (Form nama unit, label jenjang, lokasi kampus, deskripsi singkat, profil lengkap).
+     - **Bawah:** *Bagian B: Informasi Syarat Pendaftaran (Teks Landing Page)* dengan daftar butir syarat dan scroll internal `max-h-[380px]`.
+   - **Kolom Kanan:**
+     - **Atas:** *Bagian C: Berkas Form Pendaftaran (Upload Digital)* dengan tombol pintas *⚡ Preset PAUD/SD* & *⚡ Preset SMP/SMA* serta 5 saklar toggle berkas digital.
+     - **Bawah:** *Bagian D: Gelombang Pendaftaran & Biaya* (Daftar kartu gelombang, periode pendaftaran, biaya registrasi, dan tombol edit/hapus).
+   - **Bawah Tengah (Full Width):** Tombol aksi simpan utama `Simpan Seluruh Pengaturan Unit`.
+2. **Penyeragaman Warna Bagian B Identik dengan Bagian D:**
+   - **Border Card:** Diubah menjadi `border-t-[5px] border-[#2ECC71]`.
+   - **Ikon Header:** Menggunakan `<FaLayerGroup className="text-[#2ECC71] text-base" />`.
+   - **Tombol "Tambah Syarat":** Diubah menjadi `bg-primary hover:bg-emerald-900` dengan ikon `<FaPlus className="text-[10px]" />` yang identik 100% dengan tombol "+ Buat Gelombang" di Bagian D.
+   - **Input Teks Butir Syarat:** Menggunakan `focus:border-[#2ECC71]`.
+   - **Badge Nomor Urut:** Menggunakan badge nuansa emerald `bg-emerald-50 border border-emerald-200 text-emerald-800`.
+3. **Penyusunan Panduan Push GitHub & Deploy Production VPS:**
+   - Menyediakan script PowerShell git push lokal dan instruksi `git pull` + `npm run build` pada server VPS production.
+
 
 
 
