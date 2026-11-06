@@ -751,6 +751,28 @@ export default function AdminPendaftarManager() {
                           <span className="text-gray-300">-</span>
                         )}
                       </div>
+
+                      {/* Rapor Terakhir */}
+                      <div className="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-between">
+                        <div>
+                          <p className="font-bold text-gray-800">Rapor Terakhir</p>
+                          <p className="text-[11px] text-gray-400">
+                            {selectedPendaftar.file_raport ? 'File terunggah' : 'Belum diunggah'}
+                          </p>
+                        </div>
+                        {selectedPendaftar.file_raport ? (
+                          <a
+                            href={`${getBackendOrigin()}${selectedPendaftar.file_raport}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:text-emerald-700 font-bold flex items-center gap-1"
+                          >
+                            <span>Lihat</span> <FaExternalLinkAlt className="text-[10px]" />
+                          </a>
+                        ) : (
+                          <span className="text-gray-300">-</span>
+                        )}
+                      </div>
                     </div>
                   </div>
 

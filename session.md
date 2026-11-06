@@ -1233,3 +1233,54 @@ npm run preview
 3. **Penyediaan Panduan Sinkronisasi Terminal:**
    - Memberikan perintah copy file ke user untuk menyalin `logo-pkbm.png` ke folder `public/` agar kedua skenario URL (bundler Vite maupun static root direct link) terlayani optimal.
 
+---
+
+### Session 42 - 6 November 2026 (Implementasi Penuh Arsitektur Berkas Pendaftaran Dinamis: Upload Awal di Landing Page + Monitoring & Verifikasi di Portal Siswa & Admin)
+
+**Latar Belakang & Kebutuhan Klien:**
+1. Klien mengajukan permohonan spesifikasi agar calon santri dapat mengunggah berkas persyaratan langsung pada saat mengisi formulir pendaftaran awal di web landing page (`/daftar/:unit`), dengan ketentuan dokumen yang berbeda antar jenjang:
+   - **PAUD, TK & SD:** Mengunggah Akta Kelahiran dan Kartu Keluarga (KK).
+   - **SMP & SMA:** Mengunggah Akta Kelahiran, KK, Ijazah/SKL Terakhir, dan Rapor Terakhir.
+2. Di sistem sebelumnya, persyaratan berkas dipukul rata untuk semua jenjang tanpa fleksibilitas, dan hanya terdapat di dashboard siswa setelah login tanpa ada kotak upload di formulir pendaftaran awal.
+3. Dirancanglah **The Golden Flow PPDB**: Upload awal saat registrasi di landing page, dipadukan dengan portal siswa sebagai pusat pemantauan status berkas dan sarana mengunggah ulang jika terdapat catatan panitia (*Perlu Perbaikan*).
+
+**Pembaruan & Implementasi Teknis Menyeluruh:**
+
+1. **Backend Django (`Pendaftaran_MIS/Backend/`):**
+   - **Model `UnitPendidikan` (`ppdb/models.py`):**
+     - Menambahkan fungsi default `default_berkas_pendaftaran()` yang memuat status aktif dan status wajib/opsional untuk 5 dokumen inti: `akta`, `kk`, `ijazah`, `raport`, `foto`.
+     - Menambahkan kolom `berkas_pendaftaran = models.JSONField(default=default_berkas_pendaftaran, blank=True)` sebagai *Single Source of Truth* konfigurasi dokumen per unit.
+   - **Model `Pendaftar` (`ppdb/models.py`):**
+     - Menambahkan kolom file baru: `file_raport = models.FileField(upload_to='dokumen/', blank=True, null=True)`.
+   - **Serializers (`ppdb/serializers.py`):**
+     - Memperbarui `UnitPendidikanSerializer` dengan field `berkas_pendaftaran = serializers.JSONField(required=False)`.
+     - Memperbarui `PendaftarSerializer.to_internal_value()` agar mengabaikan field file yang bernilai string kosong/null/undefined saat parsing data multipart.
+   - **Views (`ppdb/views.py`):**
+     - Menambahkan `MultiPartParser, FormParser, JSONParser` pada `PendaftarCreateAPIView` sehingga endpoint registrasi awal dapat menerima data teks sekaligus berkas fisik dokumen secara serentak.
+     - Menyinkronkan status dokumen pendaftar menjadi `MENUNGGU VERIFIKASI` jika terdapat berkas yang diunggah saat registrasi awal.
+
+2. **Frontend Admin: Kelola Unit & Gelombang (`AdminUnitManager.jsx`):**
+   - Merapikan struktur kontrol unit menjadi 4 bagian teratur:
+     - **Bagian A:** Identitas & Profil Lembaga.
+     - **Bagian B:** Informasi Syarat Pendaftaran (Teks Bullet Points untuk Landing Page / Detail Unit).
+     - **Bagian C (Baru):** Pengaturan Berkas Form Pendaftaran (Upload Digital Calon Santri) lengkap dengan saklar toggle Aktif/Nonaktif dan pill status *Wajib Diisi (Required)* vs *Opsional (Bisa Menyusul)*.
+     - **Tombol Pintas Cerdas (Quick Preset):** Tombol *⚡ Preset PAUD/SD* (Akta & KK Wajib) dan *⚡ Preset SMP/SMA* (Akta, KK, Ijazah & Rapor Wajib).
+     - **Bagian D:** Gelombang Pendaftaran & Biaya Registrasi.
+
+3. **Frontend Calon Siswa: Formulir Pendaftaran Awal (`FormDaftarAwal.jsx`):**
+   - Menambahkan pemanggilan API otomatis ke konfigurasi berkas unit yang sedang dipilih.
+   - Menambahkan **Bagian D: Unggah Berkas Persyaratan Digital** di bawah data periodik:
+     - Menampilkan kotak upload hanya untuk dokumen yang diaktifkan oleh admin pada unit tersebut.
+     - Pratinjau nama file terpilih, ukuran kilobyte, dan tombol batal/hapus file.
+     - Validasi otomatis dokumen yang berstatus wajib sebelum formulir dikirimkan.
+     - Pengiriman payload menggunakan format `FormData` (`multipart/form-data`).
+
+4. **Frontend Portal Siswa: Pusat Monitoring & Perbaikan Berkas (`BiodataDokumen.jsx`):**
+   - Mengubah kartu berkas menjadi dinamis sesuai jenjang unit santri (Ijazah & Rapor otomatis disembunyikan untuk jenjang PAUD/SD/TK).
+   - Menambahkan dukungan dokumen `file_raport`.
+   - Menambahkan banner peringatan interaktif jika status dokumen diubah admin menjadi `PERLU PERBAIKAN`, lengkap dengan instruksi perbaikan dan tombol *Ganti Dokumen* yang siap dipakai.
+
+5. **Frontend Admin: Verifikasi Data Pendaftar (`AdminPendaftarManager.jsx`):**
+   - Menambahkan kartu pratinjau **Rapor Terakhir** pada Tab 3 (Berkas & Kelulusan) modal detail pendaftar, sejajar dengan KK, Akta, Pas Foto, dan Ijazah.
+
+

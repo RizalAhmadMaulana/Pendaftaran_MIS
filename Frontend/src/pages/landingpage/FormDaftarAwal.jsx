@@ -1,10 +1,10 @@
 import { getBaseApiUrl, getBackendOrigin } from '../../api/axiosInstance';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   FaUser, FaUsers, FaChild, FaGraduationCap, FaArrowRight, FaArrowLeft,
   FaCheckCircle, FaMapMarkerAlt, FaPhoneAlt, FaCheck, FaBuilding, FaIdCard,
-  FaWhatsapp
+  FaWhatsapp, FaFileUpload, FaPaperclip, FaTrash, FaInfoCircle
 } from 'react-icons/fa';
 
 
@@ -26,6 +26,50 @@ export default function FormDaftarAwal() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [generatedRegNo, setGeneratedRegNo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Berkas Dokumen Upload State & Konfigurasi Dinamis Unit
+  const [berkasConfig, setBerkasConfig] = useState(null);
+  const [files, setFiles] = useState({
+    akta: null,
+    kk: null,
+    ijazah: null,
+    raport: null,
+    foto: null,
+  });
+
+  useEffect(() => {
+    fetch(`${getBaseApiUrl()}/units/${currentUnitId}/`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.berkas_pendaftaran) {
+          setBerkasConfig(data.berkas_pendaftaran);
+        } else {
+          // Fallback cerdas jika unit belum memiliki custom setting di database
+          const isHigher = ['smp', 'sma'].includes(currentUnitId.toLowerCase());
+          setBerkasConfig({
+            akta: { active: true, required: true, label: 'Akta Kelahiran Calon Santri' },
+            kk: { active: true, required: true, label: 'Kartu Keluarga (KK)' },
+            ijazah: { active: isHigher, required: isHigher, label: 'Ijazah / SKL Terakhir' },
+            raport: { active: isHigher, required: isHigher, label: 'Rapor Terakhir (Semester Akhir)' },
+            foto: { active: true, required: false, label: 'Pas Foto Calon Santri (3x4)' },
+          });
+        }
+      })
+      .catch((err) => console.error('Error loading unit berkas config:', err));
+  }, [currentUnitId]);
+
+  const handleFileChange = (docKey, file) => {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Ukuran file melebihi batas maksimal 2 MB.');
+      return;
+    }
+    setFiles((prev) => ({ ...prev, [docKey]: file }));
+  };
+
+  const handleRemoveFile = (docKey) => {
+    setFiles((prev) => ({ ...prev, [docKey]: null }));
+  };
 
   // Form State mencakup Bagian A s/d C (tanpa program pembelajaran)
   const [formData, setFormData] = useState({
@@ -130,14 +174,36 @@ export default function FormDaftarAwal() {
       return;
     }
 
+    // Validasi berkas dokumen yang wajib diunggah sesuai unit
+    if (berkasConfig) {
+      for (const [key, conf] of Object.entries(berkasConfig)) {
+        if (conf && conf.active && conf.required && !files[key]) {
+          alert(`Mohon unggah dokumen: "${conf.label || key}" terlebih dahulu.`);
+          return;
+        }
+      }
+    }
+
     setIsSubmitting(true);
     try {
+      const payload = new FormData();
+      // Masukkan field teks biodata
+      Object.keys(formData).forEach((k) => {
+        if (formData[k] !== null && formData[k] !== undefined) {
+          payload.append(k, formData[k]);
+        }
+      });
+
+      // Masukkan file dokumen yang diunggah
+      if (files.akta) payload.append('file_akta', files.akta);
+      if (files.kk) payload.append('file_kk', files.kk);
+      if (files.ijazah) payload.append('file_ijazah', files.ijazah);
+      if (files.raport) payload.append('file_raport', files.raport);
+      if (files.foto) payload.append('file_foto', files.foto);
+
       const response = await fetch(`${getBaseApiUrl()}/daftar/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: payload,
       });
 
       if (response.status === 201 || response.ok) {
@@ -1205,6 +1271,127 @@ export default function FormDaftarAwal() {
             </div>
 
             {/* ==============================================================
+                D. UNGGAH BERKAS PERSYARATAN DIGITAL (DINAMIS SESUAI UNIT)
+                ============================================================== */}
+            <div className="space-y-6 pt-4 border-t border-gray-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-100 gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                    <FaFileUpload />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-gray-900 tracking-tight">
+                      D. Unggah Berkas Persyaratan Digital
+                    </h2>
+                    <p className="text-xs text-gray-500 font-medium">
+                      Format yang didukung: JPG, PNG, atau PDF (Ukuran maksimal: 2 MB per berkas)
+                    </p>
+                  </div>
+                </div>
+
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 self-start sm:self-center">
+                  Unit: {unitName}
+                </span>
+              </div>
+
+              {/* Grid Kotak Upload Dinamis */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {berkasConfig && Object.keys(berkasConfig).map((docKey) => {
+                  const conf = berkasConfig[docKey];
+                  if (!conf || !conf.active) return null;
+
+                  const file = files[docKey];
+                  const isRequired = Boolean(conf.required);
+
+                  return (
+                    <div
+                      key={docKey}
+                      className={`p-4 rounded-2xl border transition-all ${
+                        file
+                          ? 'bg-emerald-50/50 border-emerald-300 shadow-2xs'
+                          : isRequired
+                          ? 'bg-white border-gray-300 hover:border-emerald-500'
+                          : 'bg-slate-50/60 border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <FaPaperclip className={file ? 'text-emerald-600 text-sm' : 'text-gray-400 text-sm'} />
+                          <h4 className="text-xs sm:text-sm font-extrabold text-gray-900 leading-tight">
+                            {conf.label || docKey.toUpperCase()}
+                          </h4>
+                        </div>
+
+                        <span
+                          className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${
+                            isRequired
+                              ? 'bg-rose-100 text-rose-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {isRequired ? '★ Wajib' : '○ Bisa Menyusul'}
+                        </span>
+                      </div>
+
+                      {/* File preview jika sudah dipilih */}
+                      {file ? (
+                        <div className="mt-2.5 bg-white p-2.5 rounded-xl border border-emerald-200 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <FaCheckCircle className="text-emerald-600 text-sm shrink-0" />
+                            <span className="text-xs font-mono font-bold text-gray-800 truncate">
+                              {file.name}
+                            </span>
+                            <span className="text-[10px] text-gray-400 font-semibold shrink-0">
+                              ({(file.size / 1024).toFixed(0)} KB)
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(docKey)}
+                            className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                            title="Hapus file ini"
+                          >
+                            <FaTrash className="text-xs" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="mt-2.5">
+                          <label className="cursor-pointer inline-flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-emerald-50 text-gray-700 hover:text-emerald-900 border border-dashed border-gray-300 hover:border-emerald-400 text-xs font-bold transition-all">
+                            <FaFileUpload className="text-emerald-600" />
+                            <span>Pilih File Dokumen</span>
+                            <input
+                              type="file"
+                              accept=".jpg,.jpeg,.png,.pdf"
+                              className="hidden"
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f) handleFileChange(docKey, f);
+                              }}
+                            />
+                          </label>
+                        </div>
+                      )}
+
+                      <p className="text-[10px] text-gray-400 mt-2">
+                        {isRequired
+                          ? 'Dokumen wajib diunggah untuk verifikasi administrasi awal.'
+                          : 'Dapat disusulkan setelah login ke Portal Siswa jika belum tersedia.'}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="bg-emerald-50/60 rounded-xl p-3.5 border border-emerald-200/80 flex items-center gap-2.5 text-xs text-emerald-900">
+                <FaInfoCircle className="text-emerald-600 text-sm shrink-0" />
+                <span>
+                  Dokumen yang Anda kirim akan diverifikasi oleh panitia PPDB. Anda juga dapat memperbarui atau mengganti dokumen kapan saja melalui <strong>Portal Siswa</strong> setelah proses pendaftaran ini selesai.
+                </span>
+              </div>
+            </div>
+
+            {/* ==============================================================
                 FOOTER CARD: PERNYATAAN & TOMBOL SUBMIT (CENTERED & LINKS)
                 ============================================================== */}
             <div className="pt-6 border-t border-gray-100 space-y-6">
@@ -1218,7 +1405,7 @@ export default function FormDaftarAwal() {
                   className="mt-0.5 w-4 h-4 accent-emerald-700 rounded cursor-pointer shrink-0"
                 />
                 <span className="text-xs sm:text-sm text-gray-700 leading-relaxed">
-                  <strong>Pernyataan:</strong> Saya menyatakan bahwa seluruh data yang diisikan pada formulir pendaftaran ini (Bagian A, B, dan C) adalah benar, jelas, dan dapat dipertanggungjawabkan sesuai dokumen resmi.
+                  <strong>Pernyataan:</strong> Saya menyatakan bahwa seluruh data yang diisikan pada formulir pendaftaran ini (Bagian A, B, C, dan D) adalah benar, jelas, dan dapat dipertanggungjawabkan sesuai dokumen resmi.
                 </span>
               </label>
 

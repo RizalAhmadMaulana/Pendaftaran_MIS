@@ -41,7 +41,7 @@ Sistem PPDB Mentari Islamic School dirancang untuk menyederhanakan siklus peneri
 ### 1. Halaman Publik & Pendaftaran Online
 - **Scrollable Landing Page (`/`)**: Beranda interaktif yang menggabungkan Hero Section, Profil Lembaga (*Tentang Kami*), Katalog Unit Pendidikan, dan Alur Pendaftaran dengan fitur *Scroll Spy Navigation*.
 - **Katalog & Detail Unit Pendidikan (`/unit/:id`)**: Rincian profil tiap jenjang (TPA, KB, TK, SD, PKBM), keunggulan kurikulum, rincian biaya pendaftaran & SPP, persyaratan usia, serta sisa kuota yang tersedia.
-- **Formulir Pendaftaran Awal (`/daftar/:id`)**: Formulir pendaftaran akun calon santri dengan validasi instan nomor WhatsApp aktif dan data awal.
+- **Formulir Pendaftaran Awal (`/daftar/:id`)**: Formulir pendaftaran akun calon santri yang dilengkapi dengan **Unggah Berkas Persyaratan Digital Dinamis** (Akta Kelahiran & KK untuk PAUD/SD; ditambah Ijazah & Rapor Terakhir untuk SMP/SMA) serta validasi data otomatis.
 - **Tagihan & Invoice Pendaftaran (`/tagihan/:id`)**: Halaman invoice pembayaran biaya formulir yang dilengkapi instruksi bayar, nomor rekening/virtual account, countdown batas pembayaran, dan opsi konfirmasi pembayaran mandiri.
 - **Cek Cepat Pengumuman Kelulusan (`/pengumuman` & `/cek-status`)**: Fitur pencarian cepat status hasil seleksi santri menggunakan Nomor Registrasi atau NISN tanpa harus login.
 - **Login Peserta & Panitia (`/login`)**: Halaman autentikasi aman dengan desain *split-screen* modern.
@@ -49,7 +49,7 @@ Sistem PPDB Mentari Islamic School dirancang untuk menyederhanakan siklus peneri
 ### 2. Dashboard Calon Peserta / Santri
 Halaman privat calon wali murid setelah berhasil login ke sistem (`/dashboard`):
 - **Beranda Dashboard (`/dashboard`)**: Ringkasan status progres pendaftaran (Pendaftaran Awal ➜ Pembayaran Formulir ➜ Pengisian Biodata & Berkas ➜ Tes Seleksi ➜ Hasil Kelulusan ➜ Daftar Ulang).
-- **Biodata & Unggah Dokumen (`/dashboard/biodata`)**: Formulir komprehensif data identitas santri, riwayat kesehatan, data ayah, ibu, dan wali, serta upload berkas digital (Kartu Keluarga, Akta Kelahiran, Pas Foto, KTP Orang Tua).
+- **Biodata & Unggah Dokumen (`/dashboard/biodata`)**: Formulir komprehensif data identitas santri, kontak wali, orang tua, serta **Pusat Pemantauan & Verifikasi Berkas Digital** dinamis sesuai jenjang unit santri (notifikasi khusus jika berkas berstatus *Perlu Perbaikan* dan fitur unggah ulang mandiri).
 - **Tagihan Keuangan (`/dashboard/tagihan`)**: Monitoring riwayat pembayaran formulir dan tagihan daftar ulang pendidikan.
 - **Jadwal Seleksi & Ujian (`/dashboard/jadwal`)**: Informasi detail waktu, sesi, ruang, dan instruksi teknis observasi atau wawancara calon siswa.
 - **Pengumuman Hasil Seleksi (`/dashboard/hasil`)**: Surat keputusan kelulusan resmi (Diterima / Cadangan / Belum Lulus) dan panduan daftar ulang.
@@ -59,7 +59,7 @@ Halaman privat calon wali murid setelah berhasil login ke sistem (`/dashboard`):
 Panel kendali komprehensif untuk panitia penerimaan siswa (`/admin-portal`):
 - **Admin Dashboard (`/admin-portal`)**: Statistik metrik pendaftar secara real-time, grafik tren per jenjang unit, persentase pembayaran terverifikasi, dan status kuota penerimaan.
 - **Pendaftar Manager (`/admin-portal/pendaftar`)**: Tabel manajemen pendaftar dengan filter status (*Pending*, *Terverifikasi*, *Ditolak*), pencarian cepat, detail berkas santri, verifikasi berkas, dan export data.
-- **Unit Manager (`/admin-portal/unit`)**: Pengaturan unit pendidikan, kapasitas kuota santri baru, besaran nominal biaya formulir, dan status buka/tutup pendaftaran.
+- **Unit Manager (`/admin-portal/unit`)**: Pengaturan unit pendidikan 4 Bagian Terpadu: Profil Lembaga (Bagian A), Informasi Syarat Teks Landing Page (Bagian B), Pengaturan Berkas Form Pendaftaran Upload Dinamis & Quick Preset (Bagian C), serta Manajemen Multi-Gelombang & Biaya (Bagian D).
 - **Input Jadwal Seleksi (`/admin-portal/jadwal/input`)**: Pembuatan gelombang tes, penentuan tanggal pelaksanaan, sesi waktu, alokasi ruang, dan kapasitas kursi per sesi.
 - **Monitoring Jadwal Seleksi (`/admin-portal/jadwal/monitoring`)**: Pelacakan kehadiran peserta tes seleksi per sesi secara langsung (*live attendance*).
 - **Keputusan Seleksi (`/admin-portal/keputusan`)**: Penetapan status kelulusan peserta (Lulus, Cadangan, Tidak Lulus) secara individu maupun massal (*bulk decision*).

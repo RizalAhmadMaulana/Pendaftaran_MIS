@@ -5,7 +5,7 @@ from django.db.models import Q
 from rest_framework import generics, permissions, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Pendaftar, JadwalSeleksi, UnitPendidikan, GelombangPendaftaran
 from .serializers import (
@@ -143,6 +143,7 @@ class AdminPendaftarDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class PendaftarCreateAPIView(generics.CreateAPIView):
     queryset = Pendaftar.objects.all()
     serializer_class = PendaftarSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def perform_create(self, serializer):
         unit_val = self.request.data.get('unit', '')
@@ -173,6 +174,11 @@ class PendaftarCreateAPIView(generics.CreateAPIView):
                 break
 
         instance = serializer.save(no_registrasi=generated_no, unit=unit_obj.kode.upper())
+
+        # Update status dokumen menjadi MENUNGGU VERIFIKASI jika siswa mengunggah dokumen sejak pendaftaran awal
+        if instance.file_kk or instance.file_akta or instance.file_ijazah or instance.file_raport or instance.file_foto:
+            instance.status_dokumen = 'MENUNGGU VERIFIKASI'
+            instance.save(update_fields=['status_dokumen'])
 
         # Buat akun user untuk login. Username = no_registrasi, Password = NIK
         default_password = instance.nik if instance.nik else 'mis2026'

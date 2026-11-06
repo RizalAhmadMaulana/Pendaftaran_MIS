@@ -16,9 +16,18 @@ import {
   FaTimes,
   FaMapMarkerAlt,
   FaLayerGroup,
-  FaExclamationTriangle
+  FaExclamationTriangle,
+  FaFileUpload
 } from 'react-icons/fa';
 import SuccessNotification from '../../components/common/SuccessNotification';
+
+const DEFAULT_BERKAS_CONFIG = {
+  akta: { active: true, required: true, label: 'Akta Kelahiran Calon Santri', desc: 'Scan / foto akta kelahiran resmi catatan sipil' },
+  kk: { active: true, required: true, label: 'Kartu Keluarga (KK)', desc: 'Scan / foto Kartu Keluarga asli yang jelas' },
+  ijazah: { active: false, required: false, label: 'Ijazah / SKL Terakhir', desc: 'Ijazah atau Surat Keterangan Lulus jenjang sebelumnya' },
+  raport: { active: false, required: false, label: 'Rapor Terakhir (Semester Akhir)', desc: 'Scan nilai rapor semester terakhir' },
+  foto: { active: true, required: false, label: 'Pas Foto Calon Santri (3x4)', desc: 'Foto formal berpakaian muslim sopan background merah/biru' },
+};
 
 const KAMPUS_OPTIONS = [
   'Kampus Utama PKBM Mentari (Komplek Masjid Al Mahabbah Lembu, Jimus, Polanharjo, Klaten 57474)',
@@ -45,7 +54,7 @@ export default function AdminUnitManager() {
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
-  // Form State Bagian A & B
+  // Form State Bagian A, B & C
   const [formData, setFormData] = useState({
     nama: '',
     kategori_label: '',
@@ -54,6 +63,7 @@ export default function AdminUnitManager() {
     profil_lembaga: '',
     is_active: true,
     syarat_pendaftaran: [],
+    berkas_pendaftaran: DEFAULT_BERKAS_CONFIG,
   });
 
   // Modal State untuk Tambah Unit Baru
@@ -111,6 +121,9 @@ export default function AdminUnitManager() {
           profil_lembaga: data.profil_lembaga || '',
           is_active: data.is_active ?? true,
           syarat_pendaftaran: Array.isArray(data.syarat_pendaftaran) ? data.syarat_pendaftaran : [],
+          berkas_pendaftaran: (data.berkas_pendaftaran && typeof data.berkas_pendaftaran === 'object')
+            ? { ...DEFAULT_BERKAS_CONFIG, ...data.berkas_pendaftaran }
+            : DEFAULT_BERKAS_CONFIG,
         });
       }
     } catch (err) {
@@ -163,6 +176,69 @@ export default function AdminUnitManager() {
   const handleRemoveSyarat = (index) => {
     const updated = formData.syarat_pendaftaran.filter((_, i) => i !== index);
     setFormData((prev) => ({ ...prev, syarat_pendaftaran: updated }));
+  };
+
+  // Handler Pengaturan Berkas Form Pendaftaran Dinamis
+  const handleToggleBerkasActive = (key) => {
+    setFormData((prev) => {
+      const cur = prev.berkas_pendaftaran?.[key] || DEFAULT_BERKAS_CONFIG[key];
+      return {
+        ...prev,
+        berkas_pendaftaran: {
+          ...prev.berkas_pendaftaran,
+          [key]: {
+            ...cur,
+            active: !cur.active,
+          },
+        },
+      };
+    });
+  };
+
+  const handleToggleBerkasRequired = (key) => {
+    setFormData((prev) => {
+      const cur = prev.berkas_pendaftaran?.[key] || DEFAULT_BERKAS_CONFIG[key];
+      return {
+        ...prev,
+        berkas_pendaftaran: {
+          ...prev.berkas_pendaftaran,
+          [key]: {
+            ...cur,
+            required: !cur.required,
+          },
+        },
+      };
+    });
+  };
+
+  const handleApplyPreset = (presetType) => {
+    if (presetType === 'paud_sd') {
+      setFormData((prev) => ({
+        ...prev,
+        berkas_pendaftaran: {
+          ...prev.berkas_pendaftaran,
+          akta: { ...prev.berkas_pendaftaran?.akta, active: true, required: true },
+          kk: { ...prev.berkas_pendaftaran?.kk, active: true, required: true },
+          ijazah: { ...prev.berkas_pendaftaran?.ijazah, active: false, required: false },
+          raport: { ...prev.berkas_pendaftaran?.raport, active: false, required: false },
+          foto: { ...prev.berkas_pendaftaran?.foto, active: true, required: false },
+        },
+      }));
+      triggerNotification('Preset berkas standar PAUD / SD berhasil diterapkan!');
+    } else if (presetType === 'smp_sma') {
+      setFormData((prev) => ({
+        ...prev,
+        berkas_pendaftaran: {
+          ...prev.berkas_pendaftaran,
+          akta: { ...prev.berkas_pendaftaran?.akta, active: true, required: true },
+          kk: { ...prev.berkas_pendaftaran?.kk, active: true, required: true },
+          ijazah: { ...prev.berkas_pendaftaran?.ijazah, active: true, required: true },
+          raport: { ...prev.berkas_pendaftaran?.raport, active: true, required: true },
+          foto: { ...prev.berkas_pendaftaran?.foto, active: true, required: false },
+        },
+      }));
+      triggerNotification('Preset berkas standar SMP / SMA berhasil diterapkan!');
+    }
   };
 
   // Simpan Unit & Syarat (Update Unit)
@@ -588,16 +664,16 @@ export default function AdminUnitManager() {
                   </div>
                 </div>
 
-                {/* CARD BAGIAN B: EDITOR SYARAT PENDAFTARAN DINAMIS */}
+                {/* CARD BAGIAN B: INFORMASI SYARAT PENDAFTARAN TEKS UNTUK LANDING PAGE */}
                 <div className="bg-white rounded-[10px] border-t-[5px] border-[#5294A9] shadow-[0_4px_15px_rgba(0,0,0,0.05)] p-5 sm:p-6 space-y-4">
                   <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <div>
                       <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
                         <FaLayerGroup className="text-[#5294A9] text-base" />
-                        <span>Bagian B: Persyaratan Berkas Digital ({formData.syarat_pendaftaran.length} Butir)</span>
+                        <span>Bagian B: Informasi Syarat Pendaftaran ({formData.syarat_pendaftaran.length} Butir)</span>
                       </h3>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        Daftar kelengkapan dokumen yang wajib dipersiapkan oleh calon santri baru
+                        Daftar kelengkapan teks informasi yang dibaca oleh orang tua di Landing Page / Detail Unit
                       </p>
                     </div>
                     <button
@@ -609,7 +685,7 @@ export default function AdminUnitManager() {
                     </button>
                   </div>
 
-                  <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
+                  <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
                     {formData.syarat_pendaftaran.map((syarat, index) => (
                       <div key={index} className="flex items-center gap-2">
                         <span className="w-6 h-6 rounded-lg bg-slate-100 border border-gray-300 text-xs font-bold text-gray-700 flex items-center justify-center shrink-0">
@@ -635,14 +711,113 @@ export default function AdminUnitManager() {
                   </div>
                 </div>
 
-                {/* Action Button Simpan Bagian A & B */}
+                {/* CARD BAGIAN C: PENGATURAN BERKAS FORM PENDAFTARAN (UPLOAD DIGITAL CALON SANTRI) */}
+                <div className="bg-white rounded-[10px] border-t-[5px] border-[#2ECC71] shadow-[0_4px_15px_rgba(0,0,0,0.05)] p-5 sm:p-6 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 pb-3 gap-2">
+                    <div>
+                      <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
+                        <FaFileUpload className="text-[#2ECC71] text-base" />
+                        <span>Bagian C: Berkas Form Pendaftaran (Upload Digital)</span>
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Pilih dokumen yang wajib / opsional diunggah calon santri saat mendaftar online
+                      </p>
+                    </div>
+
+                    {/* Quick Preset Buttons */}
+                    <div className="flex items-center gap-1.5 self-start sm:self-center">
+                      <button
+                        type="button"
+                        onClick={() => handleApplyPreset('paud_sd')}
+                        className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-all cursor-pointer shadow-2xs"
+                        title="Terapkan standar PAUD & SD (Akta & KK Wajib)"
+                      >
+                        ⚡ Preset PAUD/SD
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyPreset('smp_sma')}
+                        className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-200 hover:bg-indigo-100 transition-all cursor-pointer shadow-2xs"
+                        title="Terapkan standar SMP & SMA (Akta, KK, Ijazah & Rapor Wajib)"
+                      >
+                        ⚡ Preset SMP/SMA
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Document Toggle List */}
+                  <div className="space-y-3">
+                    {Object.keys(DEFAULT_BERKAS_CONFIG).map((docKey) => {
+                      const docConfig = formData.berkas_pendaftaran?.[docKey] || DEFAULT_BERKAS_CONFIG[docKey];
+                      const isActive = Boolean(docConfig.active);
+                      const isRequired = Boolean(docConfig.required);
+
+                      return (
+                        <div
+                          key={docKey}
+                          className={`p-3.5 rounded-xl border transition-all ${
+                            isActive
+                              ? 'bg-slate-50/80 border-emerald-300 shadow-2xs'
+                              : 'bg-gray-50/40 border-gray-200 opacity-60'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              {/* Switch Toggle Aktifkan */}
+                              <label className="relative inline-flex items-center cursor-pointer select-none">
+                                <input
+                                  type="checkbox"
+                                  checked={isActive}
+                                  onChange={() => handleToggleBerkasActive(docKey)}
+                                  className="sr-only peer"
+                                />
+                                <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+                              </label>
+
+                              <div>
+                                <p className={`text-xs sm:text-sm font-extrabold ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>
+                                  {docConfig.label || DEFAULT_BERKAS_CONFIG[docKey].label}
+                                </p>
+                                <p className="text-[11px] text-gray-400">
+                                  {DEFAULT_BERKAS_CONFIG[docKey].desc}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Status Required Toggle Button */}
+                            {isActive ? (
+                              <button
+                                type="button"
+                                onClick={() => handleToggleBerkasRequired(docKey)}
+                                className={`text-[11px] font-black px-3 py-1 rounded-full border transition-all cursor-pointer shrink-0 ${
+                                  isRequired
+                                    ? 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100'
+                                    : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                                }`}
+                                title="Klik untuk beralih Wajib / Opsional"
+                              >
+                                {isRequired ? '★ Wajib Diisi' : '○ Opsional (Bisa Menyusul)'}
+                              </button>
+                            ) : (
+                              <span className="text-[11px] text-gray-400 font-semibold italic shrink-0">
+                                Nonaktif
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Action Button Simpan Bagian A, B & C */}
                 <button
                   type="submit"
                   disabled={isSaving}
                   className="w-full bg-primary hover:bg-emerald-900 active:bg-emerald-950 text-white font-extrabold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <FaSave />
-                  <span>{isSaving ? 'Menyimpan Perubahan...' : 'Simpan Perubahan Unit & Syarat'}</span>
+                  <span>{isSaving ? 'Menyimpan Perubahan...' : 'Simpan Seluruh Pengaturan Unit (Profil, Syarat & Berkas)'}</span>
                 </button>
               </form>
             </div>
@@ -654,7 +829,7 @@ export default function AdminUnitManager() {
                   <div>
                     <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
                       <FaCalendarAlt className="text-[#2ECC71] text-base" />
-                      <span>Bagian C: Gelombang Pendaftaran</span>
+                      <span>Bagian D: Gelombang Pendaftaran</span>
                     </h3>
                     <p className="text-xs text-gray-500 mt-0.5">
                       Periode dan biaya registrasi masuk santri

@@ -41,14 +41,16 @@ class UnitPendidikanSerializer(serializers.ModelSerializer):
     nama_gelombang_aktif = serializers.SerializerMethodField()
     masa_pendaftaran_teks = serializers.SerializerMethodField()
     syarat_pendaftaran = serializers.JSONField(required=False)
+    berkas_pendaftaran = serializers.JSONField(required=False)
 
     class Meta:
         model = UnitPendidikan
         fields = [
             'id', 'kode', 'nama', 'kategori_label', 'lokasi_kampus',
             'deskripsi_singkat', 'profil_lembaga', 'syarat_pendaftaran',
-            'is_active', 'urutan', 'gelombang_list', 'gelombang_aktif_data',
-            'is_open', 'biaya_aktif', 'nama_gelombang_aktif', 'masa_pendaftaran_teks'
+            'berkas_pendaftaran', 'is_active', 'urutan', 'gelombang_list',
+            'gelombang_aktif_data', 'is_open', 'biaya_aktif', 'nama_gelombang_aktif',
+            'masa_pendaftaran_teks'
         ]
 
     def get_gelombang_aktif_data(self, obj):
@@ -119,9 +121,13 @@ class PendaftarSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         # Normalisasi key camelCase dari frontend ke snake_case model Django
         mutable_data = {}
+        file_fields = {'file_kk', 'file_akta', 'file_foto', 'file_ijazah', 'file_raport'}
         for key in data:
             value = data.get(key)
             snake_key = re.sub(r'(?<!^)(?=[A-Z])', '_', key).lower()
+            # Abaikan field file jika kosong atau bertipe string 'null'/'undefined'
+            if snake_key in file_fields and (value == '' or value == 'null' or value == 'undefined' or value is None):
+                continue
             # Bersihkan date field jika kosong agar tidak error validasi DateField
             if snake_key == 'tanggal_lahir' and (value == '' or value is None):
                 value = None

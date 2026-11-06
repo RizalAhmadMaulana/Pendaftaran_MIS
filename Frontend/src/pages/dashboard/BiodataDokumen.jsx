@@ -201,7 +201,8 @@ export default function BiodataDokumen() {
       foto: 'file_foto',
       kk: 'file_kk',
       akta: 'file_akta',
-      ijazah: 'file_ijazah'
+      ijazah: 'file_ijazah',
+      raport: 'file_raport'
     };
     const fieldName = fieldMap[docId];
     if (!fieldName) return;
@@ -250,8 +251,8 @@ export default function BiodataDokumen() {
     dataSiswa.status_dokumen?.toUpperCase() === 'LENGKAP' ||
     dataSiswa.status_dokumen?.toUpperCase() === 'VERIFIED';
 
-  // Metadata 4 Dokumen Persyaratan Digital
-  const documentConfigs = [
+  // Metadata Master Dokumen Persyaratan Digital
+  const allDocumentConfigs = [
     {
       id: 'foto',
       fieldKey: 'file_foto',
@@ -282,17 +283,45 @@ export default function BiodataDokumen() {
     {
       id: 'ijazah',
       fieldKey: 'file_ijazah',
-      title: 'Ijazah / SKL / Rapor Terakhir',
+      title: 'Ijazah / SKL Terakhir',
       notes: 'Bisa disusulkan jika belum diterbitkan dari sekolah asal (PDF/JPG)',
       themeColor: 'from-purple-500 to-fuchsia-600',
       borderAccent: 'border-l-4 border-l-purple-500',
       fileUrl: dataSiswa.file_ijazah
+    },
+    {
+      id: 'raport',
+      fieldKey: 'file_raport',
+      title: 'Rapor Terakhir (Semester Akhir)',
+      notes: 'Scan / foto rapor halaman identitas dan nilai semester akhir (PDF/JPG)',
+      themeColor: 'from-teal-500 to-emerald-600',
+      borderAccent: 'border-l-4 border-l-teal-500',
+      fileUrl: dataSiswa.file_raport
     }
   ];
 
+  // Saring dokumen secara dinamis sesuai jenjang unit santri
+  const studentUnit = (dataSiswa.unit || '').toUpperCase();
+  const isElementary = ['PAUD', 'TK', 'SD', 'TPA', 'KB'].some((u) => studentUnit.includes(u));
+  const documentConfigs = allDocumentConfigs.filter((doc) => {
+    // Untuk jenjang PAUD/SD/TK, sembunyikan Ijazah & Rapor kecuali jika pendaftar sudah pernah mengunggahnya
+    if (isElementary && (doc.id === 'ijazah' || doc.id === 'raport') && !doc.fileUrl) {
+      return false;
+    }
+    return true;
+  });
+
   const getStatusBadge = (fileUrl, statusDokumen) => {
+    if (statusDokumen === 'PERLU PERBAIKAN') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800 border border-rose-300 shadow-2xs">
+          <FaExclamationCircle className="text-xs text-rose-600" />
+          Perlu Perbaikan
+        </span>
+      );
+    }
     if (fileUrl) {
-      if (statusDokumen === 'VERIFIED' || statusDokumen === 'LENGKAP') {
+      if (statusDokumen === 'VERIFIED' || statusDokumen === 'LENGKAP' || statusDokumen === 'TERVERIFIKASI') {
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
             <FaCheckCircle className="text-xs text-emerald-600" />
@@ -878,7 +907,23 @@ export default function BiodataDokumen() {
           </span>
         </div>
 
-        {/* 4 Document Cards Grid */}
+        {/* Alert Khusus jika Status Berkas PERLU PERBAIKAN */}
+        {dataSiswa.status_dokumen === 'PERLU PERBAIKAN' && (
+          <div className="p-4 bg-rose-50 border-2 border-rose-300 rounded-2xl flex items-start gap-3.5 text-rose-950 shadow-sm animate-pulse">
+            <div className="w-8 h-8 rounded-xl bg-rose-200 text-rose-800 flex items-center justify-center font-bold text-sm shrink-0">
+              <FaExclamationCircle />
+            </div>
+            <div>
+              <h4 className="font-black text-sm">Catatan Panitia PPDB: Berkas Memerlukan Perbaikan!</h4>
+              <p className="text-xs text-rose-800 mt-1 leading-relaxed">
+                Panitia seleksi telah memeriksa berkas Anda dan menemukan dokumen yang belum jelas, terpotong, atau tidak sesuai.
+                Silakan klik tombol <strong>"Ganti Dokumen"</strong> pada berkas yang perlu diperbaiki untuk mengunggah scan/foto baru.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Document Cards Grid Dinamis Sesuai Unit */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {documentConfigs.map((doc) => {
             const isUploadingThis = uploadingDoc === doc.id;

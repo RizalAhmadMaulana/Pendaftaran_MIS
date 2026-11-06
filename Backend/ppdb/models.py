@@ -11,6 +11,15 @@ def default_syarat_pendaftaran():
         "Fotocopy Ijazah/Raport Terakhir"
     ]
 
+def default_berkas_pendaftaran():
+    return {
+        "akta": {"active": True, "required": True, "label": "Akta Kelahiran"},
+        "kk": {"active": True, "required": True, "label": "Kartu Keluarga (KK)"},
+        "ijazah": {"active": False, "required": False, "label": "Ijazah / SKL Terakhir"},
+        "raport": {"active": False, "required": False, "label": "Rapor Terakhir"},
+        "foto": {"active": True, "required": False, "label": "Pas Foto Calon Santri (3x4)"},
+    }
+
 class UnitPendidikan(models.Model):
     kode = models.CharField(max_length=20, unique=True)
     nama = models.CharField(max_length=100)
@@ -19,6 +28,7 @@ class UnitPendidikan(models.Model):
     deskripsi_singkat = models.TextField(blank=True, default='')
     profil_lembaga = models.TextField(blank=True, default='')
     syarat_pendaftaran = models.JSONField(default=default_syarat_pendaftaran)
+    berkas_pendaftaran = models.JSONField(default=default_berkas_pendaftaran, blank=True)
     is_active = models.BooleanField(default=True, help_text="Saklar utama: jika False maka unit otomatis Tutup")
     urutan = models.IntegerField(default=0)
 
@@ -124,6 +134,7 @@ class Pendaftar(models.Model):
     file_akta = models.FileField(upload_to='dokumen/', blank=True, null=True)
     file_foto = models.FileField(upload_to='dokumen/', blank=True, null=True)
     file_ijazah = models.FileField(upload_to='dokumen/', blank=True, null=True)
+    file_raport = models.FileField(upload_to='dokumen/', blank=True, null=True)
     
     # Status Tambahan
     status_dokumen = models.CharField(max_length=50, default='BELUM LENGKAP')
